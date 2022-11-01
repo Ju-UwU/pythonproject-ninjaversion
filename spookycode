@@ -1,0 +1,72 @@
+def DecimalToBinary(num,len):
+    converse = bin(num).replace("0b","")
+    return converse.zfill(len)
+
+def inputLine(line,col,lineList = None,curLine = None):
+    if lineList is not None:
+        lineList = lineList
+    else:
+        lineList = []
+    for i in range(line):
+        curLineTemp = i + 1
+        if curLine is not None and curLine > curLineTemp:
+            continue
+        curListStr = input(f"{'Insert 'if curLine is not None else''} line {curLineTemp} again:")
+        curLineList = curListStr.split(" ")
+        if len(curLineList) != col:
+            print("Information inserted does not match the quantity of lines!")
+            return inputLine(line, col, lineList, curLineTemp)
+
+        errors = []
+        for key, numItem in enumerate(curLineList):
+            if not numItem.isdigit():
+                errors.append(f"Position {key + 1}({numItem}) must be integer!")
+
+            numInt = int(numItem)
+            if numInt > 15 or numInt < 1:
+                errors.append(f"Position {key + 1}({numItem}) must be integer between 1 and 15!")
+
+            if curLineTemp == 1:#Check the first line, all must respect border North
+                lineOnetempNum = DecimalToBinary(numInt,4)
+                if int(lineOnetempNum[1]) == 1:
+                    errors.append(f"Position {key + 1}({numItem}) respect border North!")
+
+            if curLineTemp == line:#Check the last line, all must respect border South
+                lineLasttempNum = DecimalToBinary(numInt,4)
+                if int(lineLasttempNum[3]) == 1:
+                    errors.append(f"Position {key + 1}({numItem}) must respect border South!")
+
+
+            if key == 0:#Check the first column, all must respect border West
+                colOnetempNum = DecimalToBinary(numInt, 4)
+                if int(colOnetempNum[0]) == 1:
+                    errors.append(f"Position {key + 1}({numItem}) must respect border West!")
+
+            if key == len(curLineList)-1:#Check the last column, all must respect border West
+                colLasttempNum = DecimalToBinary(numInt, 4)
+                if int(colLasttempNum[2]) == 1:
+                    errors.append(f"Position {key + 1}({numItem}) must respect border East!")
+
+        if len(errors) > 0:
+            print(",".join(errors))
+            return inputLine(line, col, lineList, curLineTemp)
+        lineList.append(curLineList)
+    allNum = [i for arr in lineList for i in arr]
+    countAll = allNum.count("15")
+    print(f"{(countAll/len(allNum))*100}% of the grid positions allow movement in all directions")
+
+def main():
+    line = input("How many lines?")
+    if not line.isdigit():
+        print("The quantity of lines must be integer!")
+        return main()
+    col = input("How many columns?")
+    if not col.isdigit():
+        print("The quantity of columns must be integer!")
+        return main()
+
+    print("Insert movement information by line, separated by spaces:")
+    inputLine(int(line),int(col))
+
+if __name__ == '__main__':
+    main()
